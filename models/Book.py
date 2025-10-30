@@ -9,43 +9,33 @@ from typing import List, Optional
 from .base import Base
 
 
-Base = declarative_base()
+
+class BookTypeEnum(str,enum.Enum):
+    Novel = "NOVEL"
+    Science = "SCIENCE"
+    Fairytale = "FAIRYTALE"
+
+class Book(Base):
+     __tablename__ = "books"
+
+     book_id = Column(Integer, primary_key=True, index=True)
+     bookType = Column(Enum(BookTypeEnum), default=BookTypeEnum.Science)
+     booktitle = Column(String, nullable=False)
+     pages = Column(String, nullable=False)
+
+     author_id = Column(Integer, ForeignKey("authors.author_id"))
+
+     authors = relationship("Author", back_populates="books")
 
 
 
-class OrderStatusEnum(str, enum.Enum):
-    PENDING = "PENDING"
-    PROCESSING = "PROCESSING"
-    COMPLETED = "COMPLETED"
-    CANCELLED = "CANCELLED"
+class Author(Base):
+     __tablename__= "authors"
 
-class Order(Base):
-    __tablename__ = "orders"
+     author_id = Column(Integer,primary_key=True, index=True)
+     name  =  Column(String, nullable=False)
+     email =  Column(String, nullable=False)
 
-    order_id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, nullable=False)
-    user_name = Column(String, nullable=True)
-    email = Column(String, nullable=True)
-    phone = Column(String, nullable=True)
-    shipping_address = Column(String, nullable=False)
-    total_amount = Column(Float, nullable=False)
-    status = Column(Enum(OrderStatusEnum), default=OrderStatusEnum.PENDING)
-    notes = Column(String, nullable=True)
-    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+     book = relationship("Book", back_populates="authors")
 
-    items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
-
-
-class OrderItem(Base):
-    __tablename__ = "order_items"
-
-    item_id = Column(Integer, primary_key=True, index=True)
-    order_id = Column(Integer, ForeignKey("orders.order_id", ondelete="CASCADE"))
-    product_id = Column(Integer, nullable=False)
-    product_name = Column(String, nullable=False)
-    quantity = Column(Integer, nullable=False)
-    price_per_unit = Column(Float, nullable=False)
-
-    order = relationship("Order", back_populates="items")
 
