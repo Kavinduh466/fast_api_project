@@ -1,0 +1,57 @@
+{
+    "meta": {
+        "timestamp": "2026-01-04 00:48:50.415286",
+        "profile": "enterprise"
+    },
+    "summary": {
+        "score": 95,
+        "violations": 1
+    },
+    "elements": [
+        {
+            "id": 0,
+            "type": "detected_object",
+            "content": {
+                "text": "September 2021 Man Wed Thu Sat Sun",
+                "contrast": 4.71,
+                "bg_color": [
+                    253,
+                    253,
+                    254
+                ],
+                "fg_color": [
+                    111,
+                    112,
+                    143
+                ]
+            },
+            "issues": [],
+            "status": "PASS"
+        },
+        {
+            "id": 1,
+            "type": "detected_object",
+            "content": {
+                "text": "19200-20;00 Workout with Ella We 'TIdo legs and back workout",
+                "contrast": 4.0,
+                "bg_color": [
+                    253,
+                    253,
+                    253
+                ],
+                "fg_color": [
+                    125,
+                    115,
+                    197
+                ]
+            },
+            "issues": [
+                {
+                    "rule": "min_height_check",
+                    "desc": "Height 163px < 200px"
+                }
+            ],
+            "status": "FAIL"
+        }
+    ]
+}
