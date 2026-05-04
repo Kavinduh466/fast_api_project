@@ -1,0 +1,238 @@
+{
+    "meta": {
+        "profile": "universal",
+        "timestamp": "2026-03-08T16:34:09"
+    },
+    "summary": {
+        "score": 90,
+        "violations": 1
+    },
+    "violations": [
+        {
+            "id": 1,
+            "rule": "clarity_and_simplicity",
+            "title": "Clarity and Simplicity",
+            "description": "Rule satisfied. No violation detected.",
+            "violated": false,
+            "element_info": null
+        },
+        {
+            "id": 2,
+            "rule": "visual_hierarchy",
+            "title": "Visual Hierarchy",
+            "description": "Rule satisfied. No violation detected.",
+            "violated": false,
+            "element_info": null
+        },
+        {
+            "id": 3,
+            "rule": "consistency",
+            "title": "Consistency",
+            "description": "Rule satisfied. No violation detected.",
+            "violated": false,
+            "element_info": null
+        },
+        {
+            "id": 4,
+            "rule": "perceivable_content_(wcag)",
+            "title": "Perceivable Content (WCAG)",
+            "description": "Rule satisfied. No violation detected.",
+            "violated": false,
+            "element_info": null
+        },
+        {
+            "id": 5,
+            "rule": "operable_interfaces_(wcag)",
+            "title": "Operable Interfaces (WCAG)",
+            "description": "Rule satisfied. No violation detected.",
+            "violated": false,
+            "element_info": null
+        },
+        {
+            "id": 6,
+            "rule": "understandable_content_(wcag)",
+            "title": "Understandable Content (WCAG)",
+            "description": "Rule satisfied. No violation detected.",
+            "violated": false,
+            "element_info": null
+        },
+        {
+            "id": 7,
+            "rule": "robust_and_compatible_(wcag)",
+            "title": "Robust and Compatible (WCAG)",
+            "description": "Rule satisfied. No violation detected.",
+            "violated": false,
+            "element_info": null
+        },
+        {
+            "id": 8,
+            "rule": "minimum_touch_target_size",
+            "title": "Minimum Touch Target Size",
+            "description": "Rule satisfied. No violation detected.",
+            "violated": false,
+            "element_info": null
+        },
+        {
+            "id": 9,
+            "rule": "color_contrast_ratios",
+            "title": "Color Contrast Ratios",
+            "description": "Rule satisfied. No violation detected.",
+            "violated": false,
+            "element_info": null
+        },
+        {
+            "id": 10,
+            "rule": "don't_rely_on_color_alone",
+            "title": "Don't Rely on Color Alone",
+            "description": "Rule satisfied. No violation detected.",
+            "violated": false,
+            "element_info": null
+        },
+        {
+            "id": 11,
+            "rule": "readable_typography",
+            "title": "Readable Typography",
+            "description": "Rule satisfied. No violation detected.",
+            "violated": false,
+            "element_info": null
+        },
+        {
+            "id": 12,
+            "rule": "meaningful_motion",
+            "title": "Meaningful Motion",
+            "description": "Rule satisfied. No violation detected.",
+            "violated": false,
+            "element_info": null
+        },
+        {
+            "id": 13,
+            "rule": "immediate_feedback",
+            "title": "Immediate Feedback",
+            "description": "Rule satisfied. No violation detected.",
+            "violated": false,
+            "element_info": null
+        },
+        {
+            "id": 14,
+            "rule": "progressive_disclosure",
+            "title": "Progressive Disclosure",
+            "description": "Rule satisfied. No violation detected.",
+            "violated": false,
+            "element_info": null
+        },
+        {
+            "id": 15,
+            "rule": "error_prevention_and_recovery",
+            "title": "Error Prevention and Recovery",
+            "description": "Rule satisfied. No violation detected.",
+            "violated": false,
+            "element_info": null
+        },
+        {
+            "id": 16,
+            "rule": "responsive_and_adaptive_design",
+            "title": "Responsive and Adaptive Design",
+            "description": "Rule satisfied. No violation detected.",
+            "violated": false,
+            "element_info": null
+        },
+        {
+            "id": 17,
+            "rule": "sufficient_whitespace",
+            "title": "Sufficient Whitespace",
+            "description": "Rule satisfied. No violation detected.",
+            "violated": false,
+            "element_info": null
+        },
+        {
+            "id": 18,
+            "rule": "keyboard_navigation_support",
+            "title": "Keyboard Navigation Support",
+            "description": "Rule satisfied. No violation detected.",
+            "violated": false,
+            "element_info": null
+        },
+        {
+            "id": 19,
+            "rule": "screen_reader_compatibility",
+            "title": "Screen Reader Compatibility",
+            "description": "Violation detected.",
+            "violated": true,
+            "element_info": null
+        },
+        {
+            "id": 20,
+            "rule": "icon/graphic'_is_20px",
+            "title": "Icon/Graphic' is 20px",
+            "description": "Rule satisfied. No violation detected.",
+            "violated": false,
+            "element_info": null
+        }
+    ],
+    "elements": [
+        {
+            "id": 0,
+            "type": "pageindicator",
+            "cls_id": 33,
+            "bbox": [
+                69,
+                405,
+                161,
+                425
+            ],
+            "content": {
+                "text": "Icon/Graphic",
+                "contrast": null,
+                "bg_color": null
+            },
+            "issues": [],
+            "status": "PASS"
+        },
+        {
+            "id": 1,
+            "type": "pictureicon",
+            "cls_id": 35,
+            "bbox": [
+                42,
+                314,
+                77,
+                352
+            ],
+            "content": {
+                "text": "Icon/Graphic",
+                "contrast": null,
+                "bg_color": null
+            },
+            "issues": [],
+            "status": "PASS"
+        },
+        {
+            "id": 2,
+            "type": "text",
+            "cls_id": 79,
+            "bbox": [
+                36,
+                42,
+                193,
+                80
+            ],
+            "content": {
+                "text": "DOCTORS",
+                "contrast": 3.84,
+                "bg_color": [
+                    88,
+                    97,
+                    186
+                ],
+                "fg_color": [
+                    234,
+                    213,
+                    191
+                ]
+            },
+            "issues": [],
+            "status": "PASS"
+        }
+    ],
+    "llm_analysis": "POLICY RECOMMENDATIONS: \n- Repeat essential content or use subheadings for structure, where possible. Use contrasting colors to ...\n- Ensure that all elements have clear labeling, especially in a complex app with multiple views and c..."
+}

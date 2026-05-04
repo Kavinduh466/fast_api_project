@@ -1,0 +1,58 @@
+# --- Frontend / React ---
+node_modules/
+dist/
+.DS_Store
+*.local
+.env
+
+# --- Python / Backend ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.env
+env/
+venv/
+.venv/
+ven/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*.map
+*.log
+UIGen_audit/
+feedback_gen
+ui-analyzer
+ui_frustration_deploy/
+# --- Large AI Models & Weights ---
+# (Prevent committing massive binary files)
+SMARTUI_RL/ui_model.pt
+SMARTUI_RL/tinyllama-*.gguf
+server/expert_style_index.bin
+server/weights/best.pt
+server/weights/best3.pt
+server/weights/best4.pt
+server/weights/*.bin
+
+# --- Uploaded & Generated Data ---
+server/uploads/
+server/static/uploads/
+SMARTUI_RL/audit_result.json
+SMARTUI_RL/rl_memory.json
+Interactive\ video\ analyzer/__pycache__/
+
+# --- OS / IDE ---
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+

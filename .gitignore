@@ -1,0 +1,40 @@
+# Binary / index files (FAISS, etc.)
+*.bin
+
+# Spreadsheet / optional data
+*.xls
+*.xlsx
+*.csv
+
+# Large ML / LLM artifacts (GitHub blocks files over 100 MB)
+*.gguf
+*.gguf.*
+*.onnx
+*.safetensors
+
+# PyTorch checkpoints (exclude trained weights; yolov8n.pt ~6 MB can stay tracked if present)
+uI/SMARTUI_RL/*.pt
+uI/server/weights/*.pt
+SimilarityScore/best.pt
+
+# Server runtime uploads (images, webm, json sidecars)
+uI/server/uploads/
+
+# Environment and secrets
+.env
+**/.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Node / frontend build
+node_modules/
+dist/
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
