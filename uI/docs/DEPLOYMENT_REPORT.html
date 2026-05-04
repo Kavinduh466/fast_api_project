@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Smart UI Auditor — Deployment Report</title>
+  <style>
+    @page { size: A4; margin: 2cm; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", Calibri, Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.45;
+      color: #1a1a1a;
+      max-width: 19cm;
+      margin: 0 auto;
+      padding: 1.2cm;
+    }
+    h1 { font-size: 18pt; border-bottom: 2px solid #2563eb; padding-bottom: 6px; margin-top: 0; }
+    h2 { font-size: 13pt; color: #1e40af; margin-top: 1.4em; page-break-after: avoid; }
+    h3 { font-size: 11.5pt; margin-top: 1em; }
+    p { margin: 0.5em 0; text-align: justify; }
+    ul, ol { margin: 0.4em 0 0.6em 1.2em; }
+    li { margin: 0.25em 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 10pt; margin: 0.8em 0; }
+    th, td { border: 1px solid #94a3b8; padding: 6px 8px; text-align: left; vertical-align: top; }
+    th { background: #eff6ff; }
+    code, .mono { font-family: Consolas, "Courier New", monospace; font-size: 9.5pt; background: #f1f5f9; padding: 1px 4px; border-radius: 3px; }
+    pre {
+      background: #0f172a; color: #e2e8f0; padding: 12px 14px; border-radius: 6px;
+      font-size: 9pt; overflow-x: auto; white-space: pre-wrap;
+    }
+    .meta { font-size: 10pt; color: #475569; margin-bottom: 1.5em; }
+    .callout { border-left: 4px solid #2563eb; padding: 8px 12px; background: #f8fafc; margin: 1em 0; }
+    .badge { display: inline-block; background: #059669; color: white; font-size: 9pt; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+    @media print {
+      body { padding: 0; }
+      h2 { page-break-after: avoid; }
+      pre, table, .callout { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Deployment Report: Smart UI Auditor</h1>
+<p class="meta"><strong>Product:</strong> AI-Powered Smart UI Auditor (desktop + local API)<br />
+<strong>Repository root:</strong> <span class="mono">uI</span> workspace<br />
+<strong>Document version:</strong> 1.0 &nbsp;|&nbsp; <strong>Date:</strong> April 2026<br />
+<strong>Classification:</strong> Internal / technical operations</p>
+
+<p><span class="badge">STANDALONE APP</span> This solution is deployed as a <strong>standalone desktop application</strong> using <strong>Electron</strong>. The UI runs inside a native window (not a public multi-tenant SaaS). Core auditing does <strong>not</strong> require a cloud UI host: the client talks to a <strong>local FastAPI</strong> service on the same machine (default <span class="mono">http://localhost:8000</span>). ML models, FAISS index, and uploads stay on the operator’s workstation or your controlled server. Optional features (e.g. Google Gemini) only need network access for those specific API calls.</p>
+
+<h2>1. Executive summary</h2>
+<p>The system has two runtime parts: (A) a <strong>Python FastAPI</strong> backend with PyTorch, Ultralytics YOLO, OpenAI CLIP, FAISS, and related services under <span class="mono">server/</span>; (B) an <strong>Electron + React + Vite</strong> desktop shell under <span class="mono">ai_powered_ui_auditor/</span>. End users run the desktop app and keep the API process running locally (development today uses two terminals; production can wrap both in an installer or process supervisor). This report covers prerequisites, artefacts, ports, environment variables, runbooks, and hardening for deployment.</p>
+
+<h2>2. Architecture overview</h2>
+<pre>
++---------------------------+         HTTP (localhost:8000)        +---------------------------+
+|  Electron Desktop App     |  &lt;------------------------------&gt;  |  FastAPI (uvicorn)        |
+|  React UI (Vite dev :5173 |                                      |  server/main.py           |
+|  or dist/ in production)  |                                      |  Routers: /audit, /health |
++---------------------------+                                      |  ML: YOLO, CLIP, FAISS    |
+        |                                                          +-------------+-------------+
+        |  file uploads, JSON, report images                                      |
+        v                                                                        v
+  User workstation                                                      server/uploads/, weights/,
+                                                                        expert_style_index.bin
+</pre>
+
+<h2>3. Technology inventory (verified from repo)</h2>
+<table>
+  <tr><th>Layer</th><th>Technology</th><th>Notes</th></tr>
+  <tr><td>API</td><td>FastAPI, Uvicorn</td><td>ASGI app in <span class="mono">server/main.py</span></td></tr>
+  <tr><td>ML / CV</td><td>PyTorch, torchvision, Ultralytics YOLOv8</td><td>Detector weights: <span class="mono">server/weights/best.pt</span></td></tr>
+  <tr><td>Embeddings</td><td>OpenAI CLIP (ViT-B/32)</td><td><span class="mono">server/services/vectorizer.py</span></td></tr>
+  <tr><td>Vector search</td><td>faiss-cpu</td><td><span class="mono">server/expert_style_index.bin</span> + <span class="mono">server/image_paths.txt</span></td></tr>
+  <tr><td>Image I/O</td><td>OpenCV, Pillow</td><td>BGR crops, annotated PNG/JPEG reports</td></tr>
+  <tr><td>Desktop</td><td>Electron 28, React 18, Vite 5, TypeScript</td><td><span class="mono">ai_powered_ui_auditor/package.json</span></td></tr>
+  <tr><td>Optional</td><td>google-genai, SMARTUI_RL, DeepFace, etc.</td><td>Feature-specific; see <span class="mono">requirements.txt</span></td></tr>
+</table>
+
+<h2>4. Standalone application model</h2>
+<h3>4.1 What “standalone” means here</h3>
+<ul>
+  <li><strong>Desktop shell:</strong> Electron provides a self-contained windowed app (<span class="mono">app/main.js</span>). In production mode it loads the built UI from <span class="mono">dist/index.html</span> from disk—no public hosting of the SPA is required.</li>
+  <li><strong>Local API:</strong> The React/Electron front end is configured to call <span class="mono">http://localhost:8000</span> (see e.g. <span class="mono">ElementAuditPage.tsx</span>, hooks). All classic audit traffic stays on loopback unless you intentionally change the base URL.</li>
+  <li><strong>On-prem data:</strong> Screenshots and reports are written under <span class="mono">server/uploads/</span>; no third party receives them for the CLIP+FAISS path.</li>
+</ul>
+<h3>4.2 Current packaging gap (honest)</h3>
+<p>Today’s repo scripts start <strong>Vite + Electron</strong> in dev and expect the Python server separately. A fully single-file “double-click installer” would bundle Python/uvicorn or compile services—document as a roadmap item. Until then, deployment is <strong>two local processes</strong>, which is still standalone from a <strong>no shared cloud UI</strong> perspective.</p>
+
+<h2>5. Prerequisites</h2>
+<table>
+  <tr><th>Requirement</th><th>Version / detail</th></tr>
+  <tr><td>Python</td><td><strong>CPython 3.12 or 3.13 (standard build)</strong> — avoid Python 3.13 “free-threading”/nogil for PyTorch (see startup message in <span class="mono">server/main.py</span>).</td></tr>
+  <tr><td>Node.js + npm</td><td>LTS recommended (for Electron and Vite).</td></tr>
+  <tr><td>GPU</td><td>Optional; CUDA speeds CLIP/YOLO if drivers and torch build match.</td></tr>
+  <tr><td>Disk</td><td>Space for PyTorch wheels, CLIP weights, YOLO weights, FAISS index, and uploads.</td></tr>
+</table>
+
+<h2>6. Backend deployment</h2>
+<h3>6.1 Install Python dependencies</h3>
+<p>From the repository root (parent of <span class="mono">server</span>):</p>
+<pre>python -m venv .venv
+.venv\Scripts\activate
+pip install -r ai_powered_ui_auditor\requirements.txt</pre>
+<p>Adjust path if your requirements file is consolidated elsewhere. Ensure CLIP installs from the Git URL listed in requirements.</p>
+
+<h3>6.2 Required artefacts</h3>
+<ul>
+  <li><span class="mono">server/weights/best.pt</span> — YOLO weights (must exist for detection).</li>
+  <li><span class="mono">server/expert_style_index.bin</span> — FAISS index for similarity audit.</li>
+  <li><span class="mono">server/image_paths.txt</span> — paths aligned with index rows.</li>
+  <li>Expert image library on disk matching those paths (e.g. <span class="mono">Expert_Library/...</span>).</li>
+</ul>
+<p>If the FAISS index is missing, the server still runs but similarity scores degrade to zero with “N/A” matches—document this for operators.</p>
+
+<h3>6.3 Start the API</h3>
+<pre>cd &lt;repo-root&gt;
+.venv\Scripts\activate
+uvicorn server.main:app --host 127.0.0.1 --port 8000</pre>
+<p>Use <span class="mono">--host 0.0.0.0</span> only on trusted LANs with firewall rules. Restrict CORS in <span class="mono">server/main.py</span> before any non-localhost exposure (currently <span class="mono">allow_origins=["*"]</span> for development).</p>
+
+<h3>6.4 Health check</h3>
+<p>GET <span class="mono">/health</span> returns <span class="mono">{"status":"ok"}</span> — suitable for load balancers and monitoring.</p>
+
+<h2>7. Desktop client deployment</h2>
+<h3>7.1 Development mode (two processes)</h3>
+<pre>Terminal 1: uvicorn server.main:app --reload --port 8000
+Terminal 2: cd ai_powered_ui_auditor
+npm install
+npm run dev</pre>
+<p><span class="mono">npm run dev</span> runs Vite on port 5173 and launches Electron loading <span class="mono">http://localhost:5173</span> (<span class="mono">app/main.js</span>).</p>
+
+<h3>7.2 Production-style desktop build</h3>
+<pre>cd ai_powered_ui_auditor
+npm install
+npm run build</pre>
+<p>Then run Electron with <span class="mono">NODE_ENV=production</span> so the window loads <span class="mono">dist/index.html</span> from disk. Package with electron-builder or your org’s signing pipeline (not included in this repo by default).</p>
+
+<h2>8. Configuration and secrets</h2>
+<ul>
+  <li><span class="mono">GEMINI_API_KEY</span> — read from <span class="mono">ai_powered_ui_auditor/.env</span> via <span class="mono">server/config.py</span> for Google GenAI features. <strong>Do not commit real keys.</strong> Use OS secret store or deployment vault in production.</li>
+  <li>Front end currently hard-codes <span class="mono">http://localhost:8000</span>; for packaged installers, introduce <span class="mono">VITE_API_BASE_URL</span> at build time.</li>
+</ul>
+
+<h2>9. Networking and ports</h2>
+<table>
+  <tr><th>Port</th><th>Service</th><th>Bind</th></tr>
+  <tr><td>8000</td><td>Uvicorn / FastAPI</td><td>127.0.0.1 (recommended default)</td></tr>
+  <tr><td>5173</td><td>Vite dev server</td><td>localhost (dev only)</td></tr>
+</table>
+
+<h2>10. Static panel and desktop downloads</h2>
+<p>If <span class="mono">panel-research-site/</span> exists, it is mounted at <span class="mono">/panel</span>. Endpoint <span class="mono">GET /downloads/desktop</span> serves the newest installer from <span class="mono">panel-research-site/releases/</span> (.exe, .msi, .zip, .dmg).</p>
+
+<h2>11. Security checklist (pre-production)</h2>
+<ul>
+  <li>Replace wildcard CORS with explicit origins.</li>
+  <li>Rate-limit upload size and MIME types on <span class="mono">/audit</span> routes.</li>
+  <li>Run API behind HTTPS reverse proxy if remote access is required; use auth tokens.</li>
+  <li>Rotate API keys; never log secrets.</li>
+  <li>Sanitize filenames in uploads and report URLs.</li>
+  <li>Document data retention for screenshots in <span class="mono">server/uploads/</span>.</li>
+</ul>
+
+<h2>12. Monitoring and operations</h2>
+<ul>
+  <li>Probe <span class="mono">/health</span> every 30–60s.</li>
+  <li>Disk alerts on <span class="mono">server/uploads</span> growth.</li>
+  <li>Log uvicorn access and application errors to rotated files.</li>
+  <li>Version-tag Docker images or release bundles with Git commit SHA.</li>
+</ul>
+
+<h2>13. Rollback</h2>
+<p>Keep previous <span class="mono">best.pt</span>, FAISS index, and Python wheel lockfile. Roll back by restoring artefacts and restarting uvicorn. For desktop, ship previous signed installer in <span class="mono">releases/</span>.</p>
+
+<h2>14. Troubleshooting</h2>
+<table>
+  <tr><th>Symptom</th><th>Likely cause</th><th>Mitigation</th></tr>
+  <tr><td>PyTorch import error</td><td>Unsupported Python build</td><td>Use standard CPython; reinstall torch from official index.</td></tr>
+  <tr><td>Audit returns zero similarity</td><td>Missing FAISS index</td><td>Deploy <span class="mono">expert_style_index.bin</span> + <span class="mono">image_paths.txt</span>.</td></tr>
+  <tr><td>Electron blank screen in prod</td><td>dist not built</td><td>Run <span class="mono">npm run build</span>; set NODE_ENV=production.</td></tr>
+  <tr><td>CORS blocked</td><td>API not on localhost</td><td>Align front-end base URL or tighten CORS origins explicitly.</td></tr>
+</table>
+
+<h2>15. Sign-off</h2>
+<p><strong>Prepared by:</strong> _______________________ &nbsp; <strong>Role:</strong> _______________________</p>
+<p><strong>Reviewed by:</strong> _______________________ &nbsp; <strong>Date:</strong> _______________________</p>
+
+<p class="callout"><strong>PDF export:</strong> Open this HTML file in Microsoft Edge or Google Chrome. Press Ctrl+P, choose <em>Save as PDF</em>, paper size A4, default margins. This produces the deployment report PDF without extra tools.</p>
+
+</body>
+</html>

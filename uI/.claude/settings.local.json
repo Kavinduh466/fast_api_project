@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /Users/gimhanrajapaksha/PycharmProjects/MangoWebSocket/uI/ai_powered_ui_auditor -type d -not -path */node_modules* -not -path */dist*)",
+      "Bash(grep -E '\\\\.\\(css|tsx|ts\\)$')",
+      "Bash(npx tsc:*)"
+    ]
+  }
+}

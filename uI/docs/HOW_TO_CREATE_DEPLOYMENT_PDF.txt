@@ -1,0 +1,15 @@
+DEPLOYMENT REPORT PDF — Quick steps
+===================================
+
+File to open:
+  docs\DEPLOYMENT_REPORT.html
+
+Create PDF (no extra software required):
+  1. Double-click DEPLOYMENT_REPORT.html (or open in Edge / Chrome).
+  2. Press Ctrl+P (Print).
+  3. Destination: "Save as PDF" or "Microsoft Print to PDF".
+  4. Paper: A4, Margins: Default.
+  5. Save as e.g. SmartUI_Auditor_Deployment_Report.pdf
+
+Optional copy path:
+  c:\Users\HP\Downloads\uI\uI\docs\DEPLOYMENT_REPORT.html
